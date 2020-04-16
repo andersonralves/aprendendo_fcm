@@ -1,0 +1,41 @@
+
+// Your web app's Firebase configuration
+var firebaseConfig = { };
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+firebase.analytics();
+
+const messaging = firebase.messaging();
+
+messaging.usePublicVapidKey(PUBLIC_WEB_KEY);
+
+messaging.requestPermission().then(function() {
+
+    console.log("Permissao de notificação garantida");
+
+    messaging.getToken()
+        .then(function(currentToken) {
+            console.log(currentToken)
+            document.getElementById('token').innerHTML = currentToken;
+        })
+        .catch(function(err) {
+            console.log('Erro: ', err);
+            showToken('Erro: ', err);
+            setTokenSentToServer(false);
+        });
+
+}).catch(function() {
+    console.log('Sem permissao para notificação', err);
+});
+
+messaging.onMessage(function(payload) {
+    console.log('onMessage: ', payload);
+
+    var obj = JSON.parse(payload.data.notification);
+    var notification = new Notification(obj.title, {
+        icon: obj.icon,
+        body: obj.body
+    });
+
+});
